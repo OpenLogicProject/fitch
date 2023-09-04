@@ -1,0 +1,314 @@
+This file describes the internals of the macros in fitch.sty. It is
+intended for programmers who might want to hack this package. For
+information on how to use the package, please see the user guide,
+which is provided in the file fitchdoc.tex.
+
+GENERAL
+
+Global identifiers defined by this package start with '\nd*'. The only
+exceptions are \ndref, \nddim, \ndindent, and the "nd" and "ndresume"
+latex environments.
+
+The macros provided by this package mix TeX and LaTeX primitives.
+LaTeX is used for \rule, \settowidth, \addtolength, \hspace...  All
+macros are assumed to be called in math mode.
+
+Translation proceeds through several layers of macros. Each layer
+consist of macros which expand into macros of the previous layer. Each
+layer may have some global state and initialization functions. Only
+the topmost layer (layer D) is directly user-accessible.
+
+REFERENCES
+
+We start with some macros to facilitate automatic line numbering, and
+for referencing of lines by labels. The macros defined here are:
+\nd*reset to reset the line number count. \nd*num{x}, to generate the
+next line number and store it in reference x; \nd*ref{x} to print the
+line number referenced by x, \ndref{xxx} to parse a list of
+references, separated by commas, periods, and hyphens, and translate
+all references to line numbers. Note: \ndref ignores spaces in its
+argument, but puts a space after each comma or period in the
+output. Also note: \nd*ref can be useful outside a natded environment,
+and thus it has a user accessible name. Most general ``line numbers''
+actually consist of a name (such as ``n'') and a number (such as
+``2''), to produce output such as $n+2$. \nd*set{n}{m} is called to
+set the letter to n and the number to m. As special cases, if the
+second argument is empty, it is not set, and if the first argument is
+\relax, it is not set.
+
+Example for references:
+
+\nd*reset \nd*num{x}; \nd*num{y}; \nd*numopt{n+1}{z}; \nd*num{zz}; 
+\nd*ref{y}; \ndref{x, y-zz, z}
+will produce: 1; 2; n+1; 3; 2; 1, 2-3, n+1
+
+LAYER A
+
+Layer A provides primitive picture elements which can be combined into
+natural deduction derivations. These are: \nd*t to make a topmost
+vertical line segment; \nd*v to make a continuation vertical line
+segment, \nd*i to produce the indentation for a subproof, \nd*s to
+produce the horizontal space between a vertical line and a formula,
+\nd*u{x} to underline x with appropriate spacing for a
+hypothesis. \nd*f{x} typesets the formula x with the appropriate
+vertical spacing. \nd*g{x} is like \nd*i, except it puts a guard in
+the space it creates. These elements are spaced so that they are
+appropriate as left-aligned array entries. Line numberings and
+justifications must be provided manually in this layer. All explicit
+spacing information is contained in this layer; higher layers
+manipulate only layer A primitives.
+
+Example of a derivation using layer A syntax:
+
+\[ 
+\begin{array}{lll}
+  1  &  \nd*t\nd*s\nd*f            {P\vee Q}                           \\
+  2  &  \nd*v\nd*s\nd*u            {\neg Q}                            \\
+  3  &  \nd*v\nd*i\nd*t\nd*s\nd*u  {P}                                 \\
+  4  &  \nd*v\nd*i\nd*v\nd*s\nd*f  {P}       &  \mbox{by 3}            \\
+  5  &  \nd*v\nd*i\nd*t\nd*s\nd*u  {Q}                                 \\
+  6  &  \nd*v\nd*i\nd*v\nd*s\nd*f  {\neg Q}  &  \mbox{by 2}            \\
+  7  &  \nd*v\nd*i\nd*v\nd*s\nd*f  {\bot}    &  \mbox{by 5, 6}         \\
+  8  &  \nd*v\nd*i\nd*v\nd*s\nd*f  {P}       &  \mbox{by 7}            \\
+  9  &  \nd*v\nd*s\nd*f            {P}       &  \mbox{by 1, 3-4, 5-8}  \\
+\end{array}
+\]
+
+LISTS
+
+This is a bit of a hack. We implement linked lists as follows: a list
+is either \nd*nil, or \nd*cons{T}{H}, where T is another list, and H
+is some arbitrary code. Note that lists grow to the right.  The
+following macros operate on a list that is stored in a macro \list.
+
+\nd*push\list{item} pushes the item onto the list
+\nd*pop\list{item} pops and discards the last item from the list
+\nd*item\list{command} applies command to each element of the list
+\nd*modify\list\n{elt} modifies the \n-th element of the
+list, if there is such an element. Here \n is a counter. Elements
+are counted from the right, starting from 1.
+
+We use lists of items of the forms \nd*t, \nd*v, \nd*i, and \nd*g{...}
+to represent the current indentation level and format (see Layer A,
+above). The function \nd*cont computes the indentation for the
+following line by replacing all items of the form \nd*t by \nd*v and
+\nd*g{...} by \nd*i.
+
+With the list syntax, a derivation can be expressed like this:
+
+\[ 
+\begin{array}{lll}
+  \gdef\stack{\nd*nil}
+  \newcount\n
+  \nd*push\stack{\nd*t}
+  1 & \nd*iter\stack\relax\nd*s\nd*u       {\neg\exists xP(x)} \\
+  \nd*cont\stack
+  \nd*push\stack{\nd*i}
+  \nd*push\stack{\nd*t}
+  \nd*n=2\nd*modify\stack\n{\nd*g{u}}
+  \nd*push\stack{\nd*i}
+  \nd*push\stack{\nd*t}
+  2 & \nd*iter\stack\relax\nd*s\nd*u       {P(u)} \\
+  \nd*cont\stack
+  3 & \nd*iter\stack\relax\nd*s\nd*f       {\exists xP(x)} \\
+  \nd*cont\stack
+  4 & \nd*iter\stack\relax\nd*s\nd*f       {\neg\exists xP(x)} \\
+  \nd*cont\stack
+  5 & \nd*iter\stack\relax\nd*s\nd*f       {\bot} \\
+  \nd*cont\stack
+  \nd*pop\stack
+  \nd*pop\stack
+  6 & \nd*iter\stack\relax\nd*s\nd*f       {\neg P(u)} \\
+  \nd*cont\stack
+  \nd*pop\stack
+  \nd*pop\stack
+  7 & \nd*iter\stack\relax\nd*s\nd*f       {\forall y\neg P(y)} \\
+  \nd*cont\stack
+\end{array}
+\]
+
+LAYER B
+
+Layer B is simply a wrapper around layer A. It provides commands
+\nd*beginb, \nd*resumeb, \nd*endb, \nd*openb, \nd*closeb, \nd*guardb,
+\nd*hypob, and \nd*haveb which abstract from the layer A
+primitives. This includes automatic line numbering, and automatic
+indentation. \nd*hypocontb and \nd*havecontb are like \nd*hypob and
+\nd*haveb, except that they introduce continuation lines that are
+slightly indented and have no line number/label.  \nd*beginb and
+\nd*endb enclose a natural deduction in layer B syntax. \nd*resumeb is
+like \nd*beginb, except that it resumes a deduction in progress (for
+instance, after a manual page break). \nd*openb and \nd*closeb open,
+respectively close, a subproof.  \nd*guardb{n}{g} adds the guard g to
+the nth enclosing subderivation (counted from 1 from the
+inside). \nd*hypob introduces a hypothesis, and \nd*haveb introduces a
+non-hypothesis line in a proof.  Line numbering is integrated, but
+justifications must still be given manually. Also, proof lines must
+still be terminated by '\\'. An idiosyncracy of this layer is that in
+a list of several hypotheses, all but the last one must be called with
+\nd*haveb, not \nd*hypob, to avoid drawing a horizontal line under
+each of them.
+
+Example of a derivation using layer B syntax. Note that the "line
+numbers" are really labels, which will be replaced by consecutive line
+numbers in the output.
+
+\[
+  \nd*beginb
+  \nd*haveb  {1}{P\vee Q}                               \\
+  \nd*hypob  {2}{\neg Q}                                \\
+  \nd*openb
+  \nd*hypob  {3}{P}                                     \\
+  \nd*haveb  {4}{P}       \mbox{by \ndref{3}}           \\
+  \nd*closeb
+  \nd*openb
+  \nd*hypob  {5}{Q}                                     \\
+  \nd*haveb  {6}{\neg Q}  \mbox{by \ndref{2}}           \\
+  \nd*haveb  {6a}{\bot}   \mbox{by \ndref{5,6}}         \\
+  \nd*haveb  {6b}{P}      \mbox{by \ndref{6a}}          \\
+  \nd*closeb
+  \nd*haveb  {8}{P}       \mbox{by \ndref{1,3-4,5-6b}}  \\
+  \nd*endb
+\]
+
+Here is another example, using a guard.
+
+\[
+  \nd*beginb
+  \nd*hypob  {1}{\neg\exists xP(x)}   \\
+  \nd*openb
+  \nd*guardb {1}{u}
+  \nd*openb
+  \nd*hypob  {2}{P(u)}                \\
+  \nd*haveb  {3}{\exists xP(x)}       \mbox{by \ndref{2}}  \\
+  \nd*haveb  {4}{\neg\exists xP(x)}   \mbox{by \ndref{1}}  \\
+  \nd*haveb  {5}{\bot}                \mbox{by \ndref{3,4}}\\
+  \nd*closeb
+  \nd*haveb  {6}{\neg P(u)}           \mbox{by \ndref{2-5}}\\
+  \nd*closeb
+  \nd*haveb  {7}{\forall y\neg P(y)}  \mbox{by \ndref{2-6}}\\
+  \nd*endb
+\]
+
+LAYER C
+
+Layer C is a wrapper around layer B. It takes care of buffering
+information and putting it correctly into an array. Specifically, in
+layer C, it is no more necessary to explicitly give '\\', and all
+hypotheses are denoted \hypo. Layer C also provides a convenient
+syntax for writing justification labels. Further, layer C provides
+``multi-line'' commands, thus e.g. \nd*mhypoc{a}{x\\y\\z} is an
+abbreviation for \nd*hypoc{a}{x}\nd*hypocontc{y}\nd*hypocontc{z}.  In
+addition there is a \nd*by command for writing justification labels,
+in the style of \nd*by{$\vee$E}{1,2-4,5-6}.
+
+Commands exported by layer C are: \nd*hypoc, \nd*havec, \nd*hypocontc,
+\nd*havecontc, \nd*mhypoc, \nd*mhavec, \nd*mhypocontc, \nd*mhavecontc,
+\nd*by, \nd*beginc, \nd*resumec, \nd*endc, \nd*openc, \nd*closec,
+\nd*guardc.
+
+The layer C macros work by storing each line in a data structure
+\ppp,\nd*typ,\nd*byt. The line is ejected when the beginning of the
+next line is read, and once at the very end. In this way, we can put
+in the correct line breaks (whether or not the line carries a
+justification), and a hypothesis does not get typeset until we know
+whether it is followed by another hypothesis. \nd*sto stores a new
+line, \nd*clr clears the current line, \nd*cmd outputs the current
+line.
+
+Example of layer C syntax:
+
+\[
+  \nd*beginc
+  \nd*hypoc    {1}{\neg\exists xP(x)}
+  \nd*openc
+  \nd*guardc {1}{u}
+  \nd*openc
+  \nd*hypoc    {2}{P(u)}
+  \nd*havec    {3}{\exists xP(x)}       \nd*by{$\exists$I}{2}
+  \nd*havec    {4}{\neg\exists xP(x)}   \nd*by{R}{1}  
+  \nd*havec    {5}{\bot}                \nd*by{$\neg$E}{3,4}
+  \nd*closec
+  \nd*havec    {6}{\neg P(u)}           \nd*by{$\neg$I}{2-5}
+  \nd*closec
+  \nd*havec    {7}{\forall y\neg P(y)}  \nd*by{$\forall$I}{2-6}
+  \nd*endc
+\]
+
+LAYER D
+
+Layer D is the syntax used by the end user. It is implemented as a
+wrapper around layer C, providing three additional conveniences: (1) a
+latex environment, (2) guard as optional argument to \have, \hypo, or
+\open, (3) optional relabeling arguments. The user level commands are
+similar to those of layer C: they are called \begin{nd}, \end{nd},
+\open, \close, \hypo, \have, \guard, \by.  For convenience, a number
+of abbreviations are also provided for writing justifications. For
+instance \ie for \by{$\Rightarrow$E} etc. These commands are only
+visible inside an nd-environment; thus they do not interfere with the
+global name space. There is also an environment ndresume which is like
+nd, except that it continues a proof in progress (with continuous
+nesting and labeling).
+
+The macros \nd*hypod, \nd*haved, \nd*opend, \nd*guardd are essentially
+the user-level macros, but with all optional argument spelled-out. The
+versions without the final "d" allow the optional arguments to be
+omitted.
+
+The functions \nd*optarg and \nd*optargg are used to handle optional
+arguments. Usage: \nd*optarg{default}{continuation}xxx - reads an
+optional argument, supplies default if necessary, then continues with
+continuation.  Continuation expects optional argument between
+[...]. I.e., \nd*optarg{d}{c}[xxx] => c[xxx], and \nd*optarg{d}{c}x =>
+c[d]x if x != '['.  Behavior is undefined if x is {[...}. \nd*optargg
+is similar except it takes two continuations: first one for optional
+argument present, second for not present. It takes no default value.
+
+The function \nd*five{\a} reads five, partly optional arguments of the
+shape [][]{}[]{}, then call \a with these arguments.
+
+Finally, \nd*init puts all the commands which are visible inside an
+nd-environment in the current name space.
+
+Example of a derivation using layer D syntax. As before, the "line
+numbers" are really labels, which will be replaced by consecutive line
+numbers in the output.
+
+\[
+\begin{nd}
+  \hypo{1}  {P\vee Q}   
+  \hypo{2}  {\neg Q}                         
+  \open                              
+  \hypo{3a} {P}
+  \have{3b} {P}        \r{3a}
+  \close                   
+  \open
+  \hypo{4a} {Q}
+  \have{4b} {\neg Q}   \r{2}
+  \have{4c} {\bot}     \ne{4a,4b}
+  \have{4d} {P}        \be{4c}
+  \close                             
+  \have{5}  {P}        \oe{1,3a-3b,4a-4d}                 
+\end{nd}
+\]
+
+Another example of layer D syntax, using guards and relabelings:
+
+\[
+\begin{nd}
+  \hypo          {1} {P\vee Q}
+  \open[u]
+  \hypo          {2} {P}
+  \have [\vdots] {3} {\vdots}
+  \have [n][-1]  {4} {A\wedge B}
+  \close
+  \open
+  \hypo          {5} {Q}
+  \have [\vdots] {6} {\vdots}
+  \have [m]      {7} {A\wedge B}
+  \close
+  \have          {8} {A\wedge B}  \oe{1,2-(4),5-7}
+  \have [\vdots] {9} {\vdots}
+  \have [][100] {10} {A}          \ae{8}
+\end{nd}
+\]

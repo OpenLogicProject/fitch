@@ -1,0 +1,498 @@
+\documentclass[10pt]{article}
+\input{fitch.sty}
+\usepackage{graphics}
+
+\textwidth 6.5in \textheight 9.2in
+\oddsidemargin 0in \topmargin 0in \headheight 0in \headsep -.25in
+
+\parskip=1.1ex \parindent=0pt
+
+\title{Fitch-style natural deduction macros}
+\author{Peter Selinger\\University of Ottawa}
+\date{Version 0.5, February 8, 2005}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+This document describes how to use the {\tt fitch.sty} macros for
+typesetting Fitch-style natural deduction derivations. To load the macros,
+simply put \verb!\input{fitch.sty}! near the beginning of your
+{\LaTeX} file. 
+
+Here is a natural deduction derivation, together with the code that
+produced it:
+
+\hfill
+\begin{minipage}{2.5in}
+$
+\begin{nd}
+  \hypo {1}  {P\vee Q}
+  \hypo {2}  {\neg Q}
+  \open
+  \hypo {3} {P}
+  \have {4} {P}        \r{3}
+  \close
+  \open
+  \hypo {aa} {Q}
+  \have {6} {\neg Q}   \r{2}
+  \have {7} {\bot}     \ne{aa,6}
+  \have {8} {P}        \be{7}
+  \close
+  \have {9} {P}        \oe{1,3-4,aa-8}
+\end{nd}
+$
+\end{minipage}
+\hfill
+\begin{minipage}{3in}\small
+\begin{verbatim}
+\[
+\begin{nd}
+  \hypo {1}  {P\vee Q}
+  \hypo {2}  {\neg Q}
+  \open
+  \hypo {3} {P}
+  \have {4} {P}        \r{3}
+  \close
+  \open
+  \hypo {aa} {Q}
+  \have {6} {\neg Q}   \r{2}
+  \have {7} {\bot}     \ne{aa,6}
+  \have {8} {P}        \be{7}
+  \close
+  \have {9} {P}        \oe{1,3-4,aa-8}
+\end{nd}
+\]
+\end{verbatim}
+\end{minipage}
+\hfill
+
+A derivation consists of {\em lines}, and each line contains a {\em
+  line number} and a {\em formula}. Some lines also carry a {\em
+  justification}. Moreover, each line is either a {\em hypothesis} or
+a {\em derived formula}. Generally, derived formulas carry a
+justification, whereas hypotheses do not; however, the macros do not
+enforce this.
+
+Derivations are typeset inside the \verb!nd! environment, which must be
+used in math mode. The commands \verb!\hypo! and \verb!\have! are used
+to typeset one line of the derivation; \verb!\hypo! is used for
+hypotheses, and \verb!\have! for derived formulas. Both commands take
+a label and a formula as an argument. Note that the labels used to
+identify lines in the derivation need not be actual line numbers; for
+instance, in the above example, we used the label $aa$ instead of $5$.
+In the output, lines are automatically numbered consecutively. Labels
+may not contain any punctuation characters or spaces.
+
+Subderivations are opened and closed with the commands \verb!\open! and
+\verb!\close!. Finally, the following commands are provided for
+annotating lines with justifications:
+
+\hfill
+\begin{tabular}{ll}
+  \verb!\r!  & reiteration \\
+  \verb!\ii! & implication introduction \\
+  \verb!\ie! & implication elimination \\
+  \verb!\ai! & and introduction \\
+  \verb!\ae! & and elimination \\
+\end{tabular} 
+\hfill
+\begin{tabular}{ll}
+  \verb!\oi! & or introduction \\
+  \verb!\oe! & or elimination \\
+  \verb!\ni! & not introduction \\
+  \verb!\ne! & not elimination \\
+  \verb!\be! & bottom elimination \\
+\end{tabular} 
+\hfill
+\begin{tabular}{ll}
+  \verb!\nne! & double negation elimination \\
+  \verb!\Ai! & forall introduction \\
+  \verb!\Ae! & forall elimination \\
+  \verb!\Ei! & exists introduction \\
+  \verb!\Ee! & exists elimination \\
+\end{tabular} 
+\hfill~
+
+Each such command takes a {\em reference list} as an argument. A
+reference list is a string made from labels, commas, and hyphens, for
+instance \verb!1,3a-3b,4a-4d!.
+
+\section{Details}
+
+\subsection{Guards}
+
+Some natural deduction derivations with quantifiers use {\em guards}, as in
+the following example:
+
+\hfill
+\begin{minipage}{2.5in}
+$
+\begin{nd}
+  \hypo {1} {\exists x\forall y.P(x,y)}
+  \open[v]
+  \open[u]
+  \hypo {2} {\forall y.P(u,y)}
+  \have {3} {P(u,v)}                     \Ae{2}
+  \have {4} {\exists x.P(x,v)}           \Ei{3}
+  \close
+  \have {5} {\exists x.P(x,v)}           \Ee{1,2-5}
+  \close
+  \have {6} {\forall y\exists x.P(x,y)}  \Ai{2-5}
+\end{nd}
+$
+\end{minipage}
+\hfill
+\begin{minipage}{3.5in}\small
+\begin{verbatim}
+\[
+\begin{nd}
+  \hypo {1} {\exists x\forall y.P(x,y)}
+  \open[v]
+  \open[u]
+  \hypo {2} {\forall y.P(u,y)}
+  \have {3} {P(u,v)}                     \Ae{2}
+  \have {4} {\exists x.P(x,v)}           \Ei{3}
+  \close
+  \have {5} {\exists x.P(x,v)}           \Ee{1,2-5}
+  \close
+  \have {6} {\forall y\exists x.P(x,y)}  \Ai{2-5}
+\end{nd}
+\]
+\end{verbatim}
+\end{minipage}
+
+The guards $v$ and $u$ in line 2 were typeset by giving optional
+arguments to the \verb!\open! commands of the respective
+subderivations. 
+
+For most purposes, the above way of specifying guards is sufficient.
+However, there is another method, which allows a more flexible
+placement of guards: before any line, you can give the command
+\verb!\guard{u}! to add a guard $u$ to the top-level subderivation at
+that line, or \verb!\guard[n]{u}! to add a guard to the $n$th
+enclosing subderivation at that line. Thus, the above example could
+have also been typeset by inserting the two commands \verb!\guard{u}! and
+\verb!\guard[2]{v}! just after the second \verb!\open! statement.
+
+% For backward compatibility, there is a third way of specifying guards
+% by giving an optional second argument to the \verb!\hypo! and
+% \verb!\have! commands. The use of this feature is discouraged.
+
+\subsection{Generic justifications}
+
+Non-standard justifications can be created with the \verb!\by!
+command. This command takes two arguments: a name and a reference
+list. For instance, the command \verb!\by{De Morgan}{lab3,lab4}! might
+produce the output ``\mbox{De Morgan, 3, 4}''. Note that the justification
+is typeset in text mode. A comma is automatically inserted between the
+name and the reference list, unless the reference list is empty.
+
+\subsection{Label and reference list details}
+
+Labels may not contain commas, periods, semicolons, hyphens,
+parenthesis, or spaces. In a reference list, spaces are ignored (even
+within a label!), whereas commas, periods, semicolons, parenthesis,
+and hyphens are copied to the output. All other characters are
+interpreted as part of a label. Attempting to reference a label which
+has not been previously defined by any \verb!\hypo! or \verb!\have!
+command produces an error message of the form:
+
+\begin{verbatim}
+  ! Undefined natdeduction reference: lab17.
+\end{verbatim}
+
+\subsection{Referencing line numbers in the text}
+\label{subsec-ndref}
+
+Labels defined in an \verb!nd! environment can be referenced in the
+text with the \verb!\ndref! command. This command takes a reference
+list as an argument, and produces the corresponding output. However,
+it is only possible to reference labels {\em after} the corresponding
+derivation has been typeset. There is currently no convenient way of
+defining forward references. Also, if a label is used more than once,
+\verb!\ndref! will always refer to the most recent time it was used.
+
+\subsection{Scope}
+
+The commands \verb!\hypo!, \verb!\have!, \verb!\open!, \verb!\close!,
+\verb!\r!, \verb!\ii!, and so forth are only available inside an
+\verb!nd! environment. These commands may have a different meaning
+elsewhere in the same document. The only commands provided by the
+\verb!fitch.sty!  package which are visible outside an \verb!nd!
+environment are the command \verb!\ndref! described in
+Section~\ref{subsec-ndref}, and the command \verb!\nddim! and the
+dimension \verb!\ndindent! described in Section~\ref{subsec-nddim}.
+
+\subsection{Breaking it across pages}\label{subsec-break}
+
+The \verb!nd! environment is derived from the {\LaTeX} \verb!array!
+environment, and thus it does not break across pages automatically. 
+However, if a derivation is too long to fit on a single page, it is
+possible to split it manually into physically independent, but
+logically consecutive subparts. For this purpose, the \verb!ndresume!
+environment is provided to continue a previously interrupted
+derivation. Here is an example:
+
+\hfill
+\begin{minipage}{2.5in}
+$
+\begin{nd}
+  \hypo {1}  {P\vee Q}
+  \hypo {2}  {\neg Q}
+  \open
+  \hypo {3} {P}
+  \have {4} {P}        \r{3}
+  \close
+  \open
+  \hypo {aa} {Q}
+  \have {6} {\neg Q}   \r{2}
+\end{nd}
+$
+
+Derivations can be interrupted and 
+resumed at any point.
+
+$
+\begin{ndresume}
+  \have {7} {\bot}     \ne{aa,6}
+  \have {8} {P}        \be{7}
+  \close
+  \have {9} {P}        \oe{1,3-4,aa-8}
+\end{ndresume}
+$
+\end{minipage}
+\hfill
+\begin{minipage}{3in}\small
+\begin{verbatim}
+$
+\begin{nd}
+  \hypo {1}  {P\vee Q}
+  \hypo {2}  {\neg Q}
+  \open
+  \hypo {3} {P}
+  \have {4} {P}        \r{3}
+  \close
+  \open
+  \hypo {aa} {Q}
+  \have {6} {\neg Q}   \r{2}
+\end{nd}
+$
+
+Derivations can be interrupted and 
+resumed at any point.
+
+$
+\begin{ndresume}
+  \have {7} {\bot}     \ne{aa,6}
+  \have {8} {P}        \be{7}
+  \close
+  \have {9} {P}        \oe{1,3-4,aa-8}
+\end{ndresume}
+$
+\end{verbatim}
+\end{minipage}  
+\hfill
+
+\subsection{Custom line numbers}
+
+One often needs to write derivation schemas, rather than derivations.
+This often requires the use of symbolic constants such as $n$, $n+1$,
+etc, instead of actual line numbers. The \verb!\have! and \verb!\hypo!
+commands have an optional first argument which is a symbolic constant.
+For instance, \verb!\have[n]! will cause the current line to be
+numbered with the symbolic constant $n$. Subsequent lines are
+automatically numbered $n+1$ etc. An initial offset can be given as a
+second optional argument, as in \verb!\have[n][-1]!, which will cause
+the current line to be numbered $n-1$, the following line $n$, etc. In
+an explicit offset is given, the symbolic constant can also be absent:
+for instance, the command \verb!\have[][7]! resets the current line
+number to $7$. The following example illustrates this behavior:
+
+\hfill
+\begin{minipage}{3in}
+$
+\begin{nd}
+  \hypo          {1} {P\vee Q}
+  \open
+  \hypo          {2} {P}
+  \have [\vdots] {3} {\vdots}
+  \have [n][-1]  {4} {A\wedge B}
+  \close
+  \open
+  \hypo          {5} {Q}
+  \have [\vdots] {6} {\vdots}
+  \have [m]      {7} {A\wedge B}
+  \close
+  \have          {8} {A\wedge B}  \oe{1,2-(4),5-7}
+  \have [\vdots] {9} {\vdots}
+  \have [][100] {10} {A}          \ae{8}
+\end{nd}
+$
+\end{minipage}
+\hfill
+\begin{minipage}{3.3in}\small
+\begin{verbatim}
+\[
+\begin{nd}
+  \hypo          {1} {P\vee Q}
+  \open
+  \hypo          {2} {P}
+  \have [\vdots] {3} {\vdots}
+  \have [n][-1]  {4} {A\wedge B}
+  \close
+  \open
+  \hypo          {5} {Q}
+  \have [\vdots] {6} {\vdots}
+  \have [m]      {7} {A\wedge B}
+  \close
+  \have          {8} {A\wedge B}  \oe{1,2-(4),5-7}
+  \have [\vdots] {9} {\vdots}
+  \have [][100] {10} {A}          \ae{8}
+\end{nd}
+\]
+\end{verbatim}
+\end{minipage}
+\hfill
+
+Note that in the justifiction for line $m+1$, parentheses had to be
+put around the label $4$. There is currently no way of doing this
+automatically. 
+
+{\bf Exercise.} How does one typeset an empty line number?
+
+{\bf Solution.} Since \verb!\have[]! has a special meaning as explained
+above, we need to use \verb!\have[~]! instead.
+
+\subsection{Continuation lines}\label{subsec-continuation}
+
+Sometimes one has to typeset a very long formula that does not fit on
+a single line. As of version 0.5 of the {\tt fitch.sty} macros, it is
+possible to break a formula into several lines using \verb!\\! as a
+line separator. Continuation lines are automatically indented, as
+shown in the following example.
+
+\hfill
+\begin{minipage}{2.5in}
+$
+\begin{nd}
+  \hypo{1}  {A\wedge B}
+  \hypo{2}  {A\wedge B\rightarrow{} \\ C\wedge D}
+  \have{3}  {C\wedge D}                       \ie{1,2}
+  \have{4}  {A\wedge B\wedge{} \\ C\wedge D}  \ai{1,3}
+\end{nd}
+$
+\end{minipage}
+\hfill
+\begin{minipage}{3.7in}\small
+\begin{verbatim}
+\[
+\begin{nd}
+  \hypo{1}  {A\wedge B}
+  \hypo{2}  {A\wedge B\rightarrow{} \\ C\wedge D}
+  \have{3}  {C\wedge D}                       \ie{1,2}
+  \have{4}  {A\wedge B\wedge{} \\ C\wedge D}  \ai{1,3}
+\end{nd}
+\]
+\end{verbatim}
+\end{minipage}
+\hfill
+
+Alternatively, the \verb!\havecont! and \verb!\hypocont!  commands can
+be used to specify each continuation line separately, as the following
+example illustrates.
+
+\hfill
+\begin{minipage}{2.5in}
+$
+\begin{nd}
+  \hypo{1}  {A\wedge B}
+  \hypo{2}  {A\wedge B\rightarrow{}}
+  \hypocont {C\wedge D}
+  \have{3}  {C\wedge D}                  \ie{1,2}
+  \have{4}  {A\wedge B\wedge{}}          \ai{1,3}
+  \havecont {C\wedge D}                       
+\end{nd}
+$
+\end{minipage}
+\hfill
+\begin{minipage}{3.7in}\small
+\begin{verbatim}
+\[
+\begin{nd}
+  \hypo{1}  {A\wedge B}
+  \hypo{2}  {A\wedge B\rightarrow{}}
+  \hypocont {C\wedge D}
+  \have{3}  {C\wedge D}                  \ie{1,2}
+  \have{4}  {A\wedge B\wedge{}}          \ai{1,3}
+  \havecont {C\wedge D}                       
+\end{nd}
+\]
+\end{verbatim}
+\end{minipage}
+\hfill
+
+This latter style gives slightly more flexibility in the placement of
+justifications, since each line and continuation line can have its own
+justification and its own guard (via the \verb!\guard! command).  It
+also allows a derivation to be interrupted between a line and its
+continuation, as discussed in Section~\ref{subsec-break}.
+
+\subsection{Customizing dimensions}\label{subsec-nddim}
+
+The relative sizes of the various elements of a natural deduction
+proof are preset to reasonable values depending on the size of the
+currently selected font. However, it will sometimes be necessary to
+customize these dimensions. This can be achieved with the
+\verb!\nddim! command. The syntax of the command is as follows:
+\[  {\it\verb!\nddim{!height\verb!}{!topheight\verb!}{!depth%
+    \verb!}{!labelsep\verb!}{!indent\verb!}{!hsep\verb!}{!justsep%
+    \verb!}{!linethickness\verb!}!},
+\]
+where each of the eight parameters is a dimension. The meaning of the
+first seven parameters is shown in the
+following illustrations; {\it linethickness} is simply the thickness
+of the lines.
+\[\includegraphics{fitchdoc1.eps}\]
+The default dimensions are:
+\[  \verb!\nddim{4.5ex}{3.5ex}{1.5ex}{1em}{1.6em}{.5em}{2.5em}{.2mm}!.
+\]
+In addition, there is a dimension called \verb!\ndindent!, controls
+the amount of extra indentation used on continuation lines as
+discussed in Section~\ref{subsec-continuation}. It can be changed and
+is \verb!1ex!  by default.
+
+\subsection{Other comments}
+
+The goal was to design a flexible package which would not impose any
+constraints on the form of derivations, while making typesetting easy.
+With this package, it is in fact possible to typeset incomplete,
+ill-formed, or invalid derivations. Sometimes it is pedagogically necessary
+to do so.
+
+There are no arbitrary limits on the size or nesting depth of a derivation,
+except for the obvious requirement of fitting horizontally on the
+printed page.
+
+\section{Copyright and license}
+
+The following notice applies to the \verb!fitch.sty! macros.
+
+Copyright: {\copyright} 2002--2005 Peter Selinger
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+
+\end{document}
