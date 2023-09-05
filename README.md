@@ -53,8 +53,9 @@ The code is [maintained on Github](https://github.com/OpenLogicProject/fitch/).
 
 ## Related packages
 
-- [`logicproof`]: natural deduction with boxed subproofs in the style
-  of Huth and Ryan's _Logic in Computer Science_.
+- [`logicproof`](https://ctan.org/pkg/logicproof): natural deduction
+  with boxed subproofs in the style of Huth and Ryan's _Logic in
+  Computer Science_.
 - [`lplfitch`](https://ctan.org/pkg/lplfitch): Fitch-style proofs in
   the format used in Barwise & Etchemendy's textbook _Language, Proof,
   and Logic_.
