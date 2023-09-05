@@ -1,16 +1,19 @@
 # fitch.sty
 
-# LaTeX macros for Fitch style natural deduction
+LaTeX macros for Fitch style natural deduction
+
+## Usage
 
 Fitch-style natural deduction is a system for writing proofs in
-propositional logic and predicate logic. We use it in our logic courses
-at the University of Ottawa. This is a set of easy-to-use LaTeX macros
-that I wrote for making handouts for my classes.
+propositional logic and predicate logic. This is a set of easy-to-use
+LaTeX macros originally written by Peter Selinger. It is used, e.g.,
+in the various versions of _forall x_ by PD Magnus (e.g., the [original](https://www.fecundity.com/logic/download.html),
+[Cambridge](http://www.homepages.ucl.ac.uk/~uctytbu/OERs.html), and [Calgary](https://forallx.openlogicproject.org) versions)
 
 With these macros, one can typeset natural deduction proofs in Fitch
 style, as in the following example:
 
-![](fitchexample.png){border="0"}
+![](fitchexample.png)
 
 ```
 \begin{nd}
@@ -31,46 +34,49 @@ style, as in the following example:
 
 The output is shown above, and the corresponding LaTeX code below.
 
-## News
+## Changes
 
-**Version 0.5, Feb 8, 2005.** The ability to handle multi-line formulas
+**v0.6, Sept 4, 2023.** Updated the documentation and license (from
+GPL to LPPL). The code is essentially unchanged.
+
+**v0.5, Feb 8, 2005.** The ability to handle multi-line formulas
 was added.
 
 ## Download
 
--   Complete source: [fitch-0.5.tgz](fitch-0.5.tgz).
--   The documentation: [ps](fitchdoc.ps), [pdf](fitchdoc.pdf).
--   The macros: [fitch.sty](fitch.sty).
+The package is available on CTAN as
+[`fitch`](https://ctan.org/pkg/lplfitch).
 
-## Version
+The code is [maintained on Github](https://github.com/OpenLogicProject/fitch/).
 
-Version 0.5, Feb 8, 2005
+## Related packages
 
-## Author
+- The [`lplfitch`](https://ctan.org/pkg/lplfitch) packages produces
+  Fitch-style roofs in the format used in Barwise & Etchemendy's textbook
+  _Language, Proof, and Logic_.
+- The [`natded`](https://ctan.org/pkg/natded) package produces natural
+  deduction roofs in the style of Jaśkowski, or that of Kalish and
+  Montague.
 
-Peter Selinger, University of Ottawa
+Additional packages for proofs, including Johan Klüwer's, are
+available at a [page maintained by Alex Kocurek](https://www.actual.world/latex/)
 
-## Web links
+## People
 
-A similar package by another author is
+Peter Selinger, Dalhousie University, is the original author.
 
--   [Johan Klüwer\'s Fitch Style
-    Package](http://folk.uio.no/johanw/FitchSty.html).
+Richard Zach, University of Calgary, it the current maintainer.
 
-## LICENSE
+## License
 
-Copyright (C) 2002-2005 Peter Selinger
+Copyright (C) 2002-2023 Peter Selinger
 
-This program is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2, or (at your option) any
-later version.
+This work may be distributed and/or modified under the conditions of
+the LaTeX Project Public License, either version 1.3 of this license
+or (at your option) any later version. The latest version of this
+license is in
 
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-Public License for more details.
+  https://www.latex-project.org/lppl.txt 
 
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+and version 1.3c or later is part of all distributions of LaTeX
+version 2008 or later.
