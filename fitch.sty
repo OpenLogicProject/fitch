@@ -1,28 +1,29 @@
-% Macros for Fitch-style natural deduction. 
-% Author: Peter Selinger, University of Ottawa
+%% fitch.sty
+%% Macros for Fitch-style natural deduction
+%% Copyright 2002-2023 Peter Selinger
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   https://www.latex-project.org/lppl.txt
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+% 
+% The Current Maintainer of this work is Richard Zach <rzach@ucalgary.ca>
+%
+% This work consists of the files fitch.sty and fitchdoc.tex.
+
+% Original Author: Peter Selinger, Dalhousie University
 % Created: Jan 14, 2002
-% Modified: Feb 8, 2005
-% Version: 0.5
+% Modified: Sep 4, 2023
+% Version: 0.6
 % Copyright: (C) 2002-2005 Peter Selinger
 % Filename: fitch.sty
 % Documentation: fitchdoc.tex
-% URL: http://quasar.mathstat.uottawa.ca/~selinger/fitch/
-
-% License:
-%
-% This program is free software; you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation; either version 2, or (at your option)
-% any later version.
-%
-% This program is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with this program; if not, write to the Free Software Foundation, 
-% Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+% https://github.com/OpenLogicProject/fitch/
 
 % USAGE EXAMPLE:
 % 
@@ -48,6 +49,9 @@
 % \end{nd}
 % \]
 
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{fitch}[2023-09-04 v0.6 Macros for Fitch-style natural deduction]
+
 {\chardef\x=\catcode`\*
 \catcode`\*=11
 \global\let\nd*astcode\x}
@@ -63,7 +67,7 @@
 \def\nd*numopt#1#2{\nd*numo{$#1$}{#2}}
 \def\nd*numo#1#2{\edef\x{#1}\mbox{$\x$}\expandafter\global\expandafter\let\csname nd*-#2\endcsname\x}
 \def\nd*ref#1{\expandafter\let\expandafter\x\csname nd*-#1\endcsname\ifx\x\relax%
-  \errmessage{Undefined natdeduction reference: #1}\else\mbox{$\x$}\fi}
+  \PackageWarning{fitch}{Undefined line reference: #1}\mbox{\textbf{??}}\else\mbox{$\x$}\fi}
 \def\nd*noop{}
 \def\nd*set#1#2{\ifx\relax#1\nd*noop\else\global\def\nd*base{#1}\fi\ifx\relax#2\relax\else\global\nd*ctr=#2\fi}
 \def\nd*reset{\nd*set{}{1}}
