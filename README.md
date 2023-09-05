@@ -45,7 +45,7 @@ was added.
 ## Download
 
 The package is available on CTAN as
-[`fitch`](https://ctan.org/pkg/lplfitch).
+[`fitch`](https://ctan.org/pkg/fitch).
 
 The code is [maintained on Github](https://github.com/OpenLogicProject/fitch/).
 
