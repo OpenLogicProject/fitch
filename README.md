@@ -7,8 +7,10 @@ LaTeX macros for Fitch style natural deduction
 Fitch-style natural deduction is a system for writing proofs in
 propositional logic and predicate logic. This is a set of easy-to-use
 LaTeX macros originally written by Peter Selinger. It is used, e.g.,
-in the various versions of _forall x_ by PD Magnus (e.g., the [original](https://www.fecundity.com/logic/download.html),
-[Cambridge](http://www.homepages.ucl.ac.uk/~uctytbu/OERs.html), and [Calgary](https://forallx.openlogicproject.org) versions)
+in the various versions of _forall x_ by PD Magnus (e.g., the
+[original](https://www.fecundity.com/logic/download.html),
+[Cambridge](http://www.homepages.ucl.ac.uk/~uctytbu/OERs.html), and
+[Calgary](https://forallx.openlogicproject.org) versions)
 
 With these macros, one can typeset natural deduction proofs in Fitch
 style, as in the following example:
@@ -51,12 +53,17 @@ The code is [maintained on Github](https://github.com/OpenLogicProject/fitch/).
 
 ## Related packages
 
-- The [`lplfitch`](https://ctan.org/pkg/lplfitch) packages produces
-  Fitch-style roofs in the format used in Barwise & Etchemendy's textbook
-  _Language, Proof, and Logic_.
-- The [`natded`](https://ctan.org/pkg/natded) package produces natural
-  deduction roofs in the style of Jaśkowski, or that of Kalish and
-  Montague.
+- [`logicproof`]: natural deduction with boxed subproofs in the style
+  of Huth and Ryan's _Logic in Computer Science_.
+- [`lplfitch`](https://ctan.org/pkg/lplfitch): Fitch-style proofs in
+  the format used in Barwise & Etchemendy's textbook _Language, Proof,
+  and Logic_.
+- [`natded`](https://ctan.org/pkg/natded): natural deduction proofs
+  in the style of Jaśkowski, or that of Kalish and Montague.
+- [`synproof`](https://ctan.org/pkg/synproof): natural deduction
+  proofs in the style of Gamut's _Logic,
+  Language, and Meaning_.
+
 
 Additional packages for proofs, including Johan Klüwer's, are
 available at a [page maintained by Alex Kocurek](https://www.actual.world/latex/)
