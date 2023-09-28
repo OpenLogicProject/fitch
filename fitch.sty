@@ -148,7 +148,11 @@
 \def\nd*havec#1#2{\nd*cmd\nd*sto{\nd*haveb}{#1}{#2}}
 \def\nd*hypocontc#1{\nd*chtyp\nd*cmd\nd*sto{\nd*hypocontb}{}{#1}}
 \def\nd*havecontc#1{\nd*cmd\nd*sto{\nd*havecontb}{}{#1}}
-\def\nd*by#1#2{\ifx\nd*x#2\nd*x\gdef\nd*byt{\mbox{#1}}\else\gdef\nd*byt{\mbox{#1, \ndref{#2}}}\fi}
+\def\nd*by#1#2{\ifx\nd*x#2\nd*x\gdef\nd*byt{\mbox{#1}}\else\ifx\nd*x#1\nd*x\gdef\nd*byt{\mbox{\ndref{#2}}}\else\gdef\nd*byt{\mbox{#1\ndrulepunct\ndref{#2}}}\fi\fi}
+
+% user-redefinable punctuation between rule name and line references, by default comma+space
+
+\def\ndrulepunct{, }
 
 % multi-line macros
 \def\nd*mhypoc#1#2{\nd*mhypocA{#1}#2\\\nd*stop\\}
