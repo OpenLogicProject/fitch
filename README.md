@@ -38,6 +38,11 @@ The output is shown above, and the corresponding LaTeX code below.
 
 ## Changes
 
+**v1.0-alpha, Sept 30, 2023** This is an alpha release that adds key-value
+options to the package and commands for customization. It is not fully
+compatible with the 0.x versions (see documentation). Please report
+any issues or suggestions.
+
 **v0.6, Sept 4, 2023.** Updated the documentation and license (from
 GPL to LPPL). The code is essentially unchanged.
 
