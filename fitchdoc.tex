@@ -229,8 +229,10 @@ is typeset in text mode.
 
 In the default justification format, a comma is automatically inserted
 between the name and the reference list, unless the reference list is
-empty. (The formatting of justifications can be changed, see
-Section~\ref{sec-customization}.) 
+empty. The formatting of justifications can be changed, see
+Section~\ref{sec-customization}. If the reference list is empty, only
+the first argument (without formatting or punctuation) is printed. If
+the first argument is empty, only the reference list is printed.
 
 Since the |\by| command outputs its first argument without additional
 formatting when the second argument is empty, you can use |\by{...}{}|
@@ -244,6 +246,7 @@ $
   \have {c} {B}
     \by{\ndref{a,b}
       (but \emph{how?})}{}
+  \have {d} {A \wedge B} \by{}{b,c}
 \end{nd}
 $
 \end{LTXexample}
@@ -401,7 +404,7 @@ the following diagram.
   \includegraphics{fitchdoc-dimen}
 \end{center}
 In addition, \meta{linethickness} determines the thickness of scope
-lines, and \meta{nddimen} the extra indentation of continuation lines
+lines, and \meta{cindent} the extra indentation of continuation lines
 (as discussed in Section~\ref{subsec-continuation}). The default
 dimensions are:
 \begin{center}
