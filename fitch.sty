@@ -203,7 +203,7 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 \def\nd@havec#1#2{\nd@cmd\nd@sto{\nd@haveb}{#1}{#2}}
 \def\nd@hypocontc#1{\nd@chtyp\nd@cmd\nd@sto{\nd@hypocontb}{}{#1}}
 \def\nd@havecontc#1{\nd@cmd\nd@sto{\nd@havecontb}{}{#1}}
-\def\nd@by#1#2{\ifx\nd@x#2\nd@x\gdef\nd@byt{\mbox{#1}}\else\ifx\nd@x#1\nd@x\gdef\nd@byt{\mbox{\ndref{#2}}}\else\gdef\nd@byt{\mbox{\csname\nd@justformat\endcsname{#1}{\ndref{#2}}}}\fi\fi}
+\def\nd@by#1#2{\ifx\nd@x#2\nd@x\gdef\nd@byt{\mbox{#1}}\else\ifx\nd@x#1\nd@x\gdef\nd@byt{\mbox{\ndref{#2}}}\else\gdef\nd@byt{\mbox{\csname\nd@justformat\endcsname{#1}{\ndref{#2}}}}\fi\fi\ignorespaces}
 
 % multi-line macros
 \def\nd@mhypoc#1#2{\nd@mhypocA{#1}#2\\\nd@stop\\}
@@ -225,8 +225,8 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 % Layer D
 
 % macros with optional arguments spelled-out
-\def\nd@hypod[#1][#2]#3[#4]#5{\ifx\relax#4\relax\else\nd@guardb{1}{#4}\fi\nd@mhypoc{#3}{#5}\nd@set{#1}{#2}}
-\def\nd@haved[#1][#2]#3[#4]#5{\ifx\relax#4\relax\else\nd@guardb{1}{#4}\fi\nd@mhavec{#3}{#5}\nd@set{#1}{#2}}
+\def\nd@hypod[#1][#2]#3[#4]#5{\ifx\relax#4\relax\else\nd@guardb{1}{#4}\fi\nd@mhypoc{#3}{#5}\nd@set{#1}{#2}\ignorespaces}
+\def\nd@haved[#1][#2]#3[#4]#5{\ifx\relax#4\relax\else\nd@guardb{1}{#4}\fi\nd@mhavec{#3}{#5}\nd@set{#1}{#2}\ignorespaces}
 \def\nd@havecont#1{\nd@mhavecontc{#1}}
 \def\nd@hypocont#1{\nd@mhypocontc{#1}}
 \def\nd@base{undefined}
@@ -298,9 +298,12 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
   \setkeys{fitch}{#1}%
   \nd@init\nd@resumec}
   {\nd@endc\endgroup}
-\newenvironment{fitchproof}
-  {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item$\begin{nd}}
-  {\end{nd}$\end{list}}
+\newenvironment{fitchproof}[1][arrayenv=tabular]
+  {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{nd}[arrayenv=tabular,#1]}
+  {\end{nd}\end{list}}
+\newenvironment{fitchproof*}[1][arrayenv=tabular]
+  {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{ndresume}[arrayenv=tabular,#1]}
+  {\end{ndresume}\end{list}}
 
 % End of file fitch.sty
 
