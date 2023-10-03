@@ -74,6 +74,7 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 \DeclareStringOption[2.5em]{justsep}[2.5em]
 \DeclareStringOption[.2mm]{linethickness}[.2mm]
 \DeclareStringOption[1em]{cindent}[1em]
+\DeclareBoolOption[true]{outerline}
 
 % user command to redefine dimensions
 \def\nddim#1#2#3#4#5#6#7#8{
@@ -101,7 +102,8 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
   hsep,
   justsep,
   linethickness,
-  cindent
+  cindent,
+  outerline
 }
 
 \ProcessLocalKeyvalOptions{fitch}
@@ -142,7 +144,8 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 %\nddim{4.5ex}{3.5ex}{1.5ex}{1em}{1.6em}{.5em}{2.5em}{.2mm}
 
 \def\nd@v{\rule[-\nd@depth]{\nd@linethickness}{\nd@height}}
-\def\nd@t{\rule[-\nd@depth]{0mm}{\nd@height}\rule[-\nd@depth]{\nd@linethickness}{\nd@topheight}}
+\def\nd@h{\rule[-\nd@depth]{0mm}{\nd@height}} % strut
+\def\nd@t{\rule[-\nd@depth]{\nd@linethickness}{\nd@topheight}}
 \def\nd@i{\hspace{\nd@indent}} 
 \def\nd@s{\hspace{\nd@hsep}}
 \def\nd@g#1{\nd@f{\makebox[\nd@indent][c]{$#1$}}}
@@ -169,9 +172,17 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 % Layer B
 
 \newcount\nd@n
-\def\nd@beginb{\begingroup\nd@reset\gdef\nd@stack{\nd@nil}\nd@push\nd@stack{\nd@t}%
+\def\nd@beginb{%
+  \begingroup
+  \nd@reset
+  \gdef\nd@stack{\nd@nil}%
+  \nd@push\nd@stack{\nd@h}%
+  \ifnd@outerline
+    \nd@push\nd@stack{\nd@t}\fi
   \begin{\nd@arrayenv}{l@{\hspace{\nd@labelsep}}l@{\hspace{\nd@justsep}}l}}
-\def\nd@resumeb{\begingroup\begin{\nd@arrayenv}{l@{\hspace{\nd@labelsep}}l@{\hspace{\nd@justsep}}l}}
+\def\nd@resumeb{%
+  \begingroup
+  \begin{\nd@arrayenv}{l@{\hspace{\nd@labelsep}}l@{\hspace{\nd@justsep}}l}}
 \def\nd@endb{\end{\nd@arrayenv}\endgroup}
 \def\nd@hypob#1#2{\nd@f{\nd@num{#1}}&\nd@iter\nd@stack\relax\nd@cont\nd@stack\nd@s\nd@u{#2}&}
 \def\nd@haveb#1#2{\nd@f{\nd@num{#1}}&\nd@iter\nd@stack\relax\nd@cont\nd@stack\nd@s\nd@f{#2}&}
