@@ -38,6 +38,9 @@ The output is shown above, and the corresponding LaTeX code below.
 
 ## Changes
 
+**v1.0-beta, October 15, 2023** Adds `outerline` option; improves
+`\by`; fixes spacing when using `tabular`
+
 **v1.0-alpha, Sept 30, 2023** This is an alpha release that adds key-value
 options to the package and commands for customization. It is not fully
 compatible with the 0.x versions (see documentation). Please report
