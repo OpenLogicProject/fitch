@@ -50,7 +50,7 @@
 % \]
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{fitch}[2023-10-15 v1.0-beta Macros for Fitch-style natural deduction]
+\ProvidesPackage{fitch}[2023-10-15 v1.0-beta2 Macros for Fitch-style natural deduction]
 
 % Define keyval options
 
@@ -64,6 +64,7 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 \DeclareStringOption[ndrules]{rules}
 \DeclareStringOption[array]{arrayenv}
 \DeclareStringOption[ndjustformat]{justformat}
+\DeclareStringOption[ndrefformat]{refformat}
 
 \DeclareStringOption[4.5ex]{height}[4.5ex]
 \DeclareStringOption[3.5ex]{topheight}[3.5ex]
@@ -94,6 +95,7 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
   rules,
   arrayenv,
   justformat,
+  refformat,
   height,
   topheight,
   depth,
@@ -122,7 +124,7 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 \def\nd@numopt#1#2{\nd@numo{$#1$}{#2}}
 \def\nd@numo#1#2{\edef\x{#1}\mbox{$\x$}\expandafter\global\expandafter\let\csname nd@-#2\endcsname\x}
 \def\nd@ref#1{\expandafter\let\expandafter\x\csname nd@-#1\endcsname\ifx\x\relax%
-  \PackageWarning{fitch}{Undefined line reference: #1}\mbox{\textbf{??}}\else\mbox{$\x$}\fi}
+  \PackageWarning{fitch}{Undefined line reference: #1}\mbox{\textbf{??}}\else\csname\nd@refformat\endcsname{\mbox{$\x$}}\fi}
 \def\nd@noop{}
 \def\nd@set#1#2{\ifx\relax#1\nd@noop\else\global\def\nd@base{#1}\fi\ifx\relax#2\relax\else\global\nd@ctr=#2\fi}
 \def\nd@reset{\nd@set{}{1}}
@@ -285,6 +287,10 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 % default justification format
 
 \newcommand{\ndjustformat}[2]{#1, #2}
+
+% default line number format
+
+\newcommand{\ndrefformat}[1]{#1}
 
 % User-level commands for proofs
 
