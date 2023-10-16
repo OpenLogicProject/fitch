@@ -89,11 +89,19 @@ produced it:
 \end{LTXexample}
 
 A derivation consists of \emph{lines}, and each line contains a {\em
-line number} and a \emph{formula}. Some lines also carry a {\em
+line label} and a \emph{formula}. Some lines also carry a {\em
 justification}. Moreover, each line is either a \emph{hypothesis} or a
-\emph{derived formula}. Generally, derived formulas carry a
+\emph{derived formula}. Usually, derived formulas carry a
 justification, whereas hypotheses do not; however, the macros do not
 enforce this.
+
+Proofs set using |fitch.sty| will have lines numbered automatically in
+the output. It is possible to override the automatic numbering (see
+Section~\ref{subsec-customline}). You can refer to line numbers in the
+text using |\ndref| (see Section~\ref{subsec-ndref}). Various
+dimensions, formatting of justifications and line references, and the
+shorthand macros used to produce rule names can be customized (see
+Section~\ref{sec-customization}).
 
 \section{Usage}\label{sec-usage}
 
@@ -232,16 +240,15 @@ is typeset in text mode.
 In the default justification format, a comma is automatically inserted
 between the name and the reference list, unless the reference list is
 empty. The formatting of justifications can be changed, see
-Section~\ref{sec-customization}. If the reference list is empty, only
-the first argument (without formatting or punctuation) is printed.
-\NewIn{1.0} If
-the first argument is empty, only the reference list is printed.
+Section~\ref{sec-customization}. If the second argument (the reference
+list) is empty, only the first argument (without formatting or
+punctuation) is printed. \NewIn{1.0} If the first argument is empty,
+only the reference list is printed.
 
 Since the |\by| command outputs its first argument without additional
 formatting when the second argument is empty, you can use |\by{...}{}|
 to produce arbitrary text in the justification. You can use the
-|\ndref| command here. If the first argument is empty, only the
-reference list is printed.
+|\ndref| command here.
 \begin{LTXexample}
 $
 \begin{nd}
