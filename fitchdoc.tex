@@ -240,12 +240,14 @@ the first argument is empty, only the reference list is printed.
 Since the |\by| command outputs its first argument without additional
 formatting when the second argument is empty, you can use |\by{...}{}|
 to produce arbitrary text in the justification. You can use the
-|\ndref| command here, e.g.:
+|\ndref| command here. If the first argument is empty, only the
+reference list is printed.
 \begin{LTXexample}
 $
 \begin{nd}
-  \hypo {a} {A \Rightarrow B}
-  \hypo {b} {A}
+  \hypo {a} {A \Rightarrow B} 
+    \by{Premise}{}
+  \hypo {b} {A} \by{Premise}{}
   \have {c} {B}
     \by{\ndref{a,b}
       (but \emph{how?})}{}
@@ -256,7 +258,7 @@ $
 
 \subsection{Scope}
 
-The commands |\hypo|, |\have|, |\open|, |\close|, |\r|, |\ii|, and so
+The commands |\hypo|, |\have|, |\open|, |\close|, |\by|, |\r|, |\ii|, and so
 forth are only available inside an |nd| environment. These commands
 may have a different meaning elsewhere in the same document. The only
 commands provided by the |fitch.sty|  package which are visible
