@@ -18,9 +18,9 @@
 
 % Original Author: Peter Selinger, Dalhousie University
 % Created: Jan 14, 2002
-% Modified: October 15, 2023
-% Version: 0.6
-% Copyright: (C) 2002-2005 Peter Selinger
+% Modified: December 17, 2023
+% Version: 1.0
+% Copyright: (C) 2002-2005 Peter Selinger, Richard Zach
 % Filename: fitch.sty
 % Documentation: fitchdoc.tex
 % https://github.com/OpenLogicProject/fitch/
@@ -50,7 +50,7 @@
 % \]
 
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{fitch}[2023-10-15 v1.0-beta2 Macros for Fitch-style natural deduction]
+\ProvidesPackage{fitch}[2023-12-17 v1.0 Macros for Fitch-style natural deduction]
 
 % Define keyval options
 
@@ -302,13 +302,13 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 \newenvironment{ndresume}[1][]
   {\begingroup
   \setkeys{fitch}{#1}%
-  \nd@init\nd@resumec}
+  \nd@init\nd@resumec\ignorespaces}
   {\nd@endc\endgroup}
-\newenvironment{fitchproof}[1][arrayenv=tabular]
-  {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{nd}[arrayenv=tabular,#1]}
+\newenvironment{fitchproof}[1][]
+  {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{nd}[#1]}
   {\end{nd}\end{list}}
-\newenvironment{fitchproof*}[1][arrayenv=tabular]
-  {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{ndresume}[arrayenv=tabular,#1]}
+\newenvironment{fitchproof*}[1][]
+  {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{ndresume}[#1]}
   {\end{ndresume}\end{list}}
 
 % End of file fitch.sty

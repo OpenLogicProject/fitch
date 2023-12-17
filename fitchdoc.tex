@@ -18,9 +18,9 @@
 
 % Original Author: Peter Selinger, Dalhousie University
 % Created: Jan 14, 2002
-% Modified: Sep 30, 2023
+% Modified: Dec 17, 2023
 % Version: 1.0
-% Copyright: (C) 2002-2023 Peter Selinger
+% Copyright: (C) 2002-2023 Peter Selinger, Richard Zach
 % Filename: fitch.sty
 % Documentation: fitchdoc.tex
 % https://github.com/OpenLogicProject/fitch/
@@ -55,7 +55,7 @@ where you can also report any
 \href{https://github.com/OpenLogicProject/fitch/issues}{issues} with
 it.}}
 
-\date{Version 1.0-beta2\\ October 15, 2023}
+\date{Version 1.0\\ December 17, 2023}
 
 \begin{document}
 \maketitle
@@ -63,15 +63,15 @@ it.}}
 \section{Overview}
 
 This document describes how to use the {\tt fitch.sty} macros for
-typesetting Fitch-style natural deduction derivations. To load the macros,
-simply put |\usepackage{fitch}| into the preamble of your
+typesetting Fitch-style natural deduction derivations. To load the
+macros, simply put |\usepackage{fitch}| into the preamble of your
 {\LaTeX} file. 
 
 Here is a natural deduction derivation, together with the code that
 produced it:
 
 \begin{LTXexample}
-\begin{fitchproof}
+$\begin{nd}
   \hypo {1}  {P\vee Q}
   \hypo {2}  {\neg Q}
   \open
@@ -85,7 +85,7 @@ produced it:
   \have {8} {P}        \be{7}
   \close
   \have {9} {P}        \oe{1,3-4,aa-8}
-\end{fitchproof}
+\end{nd}$
 \end{LTXexample}
 
 A derivation consists of \emph{lines}, and each line contains a {\em
@@ -103,19 +103,27 @@ dimensions, formatting of justifications and line references, and the
 shorthand macros used to produce rule names can be customized (see
 Section~\ref{sec-customization}).
 
+\NewIn{1.0} Several new commands and customization options have been
+introduced in v1.0. It is mostly backwards compatible with earlier
+versions, but see section~\ref{compat}. In particular, if you
+redefined any internal |fitch| commands, you will have to change |nd*|
+to |nd@|.
+
 \section{Usage}\label{sec-usage}
 
-\DescribeEnv{nd}\DescribeEnv{fitchproof} Derivations are typeset
+\DescribeEnv{nd}\DescribeEnv{nd} Derivations are typeset
 inside the |nd| environment. By default, the standard |array|
 environment is used to do this, so the |nd| environment must must be
 used in math mode, i.e., it should be surrounded by |$...$| or
 |\[...\]|.
 
-\NewIn{1.0} The environment |fitchproof| typesets the proof on its
-own. Proofs will be set flush left, with the default |\partopsep|
-spacing surrounding lists added. You do not have to insert |$| to
-switch to math mode for |fitchproof|---by default, it is generated
-using a |tabular| environment.
+\NewIn{1.0} The environment |fitchproof| typesets the proof on its own
+in text, not math mode. Proofs will be set flush left, with the
+default |\partopsep| spacing surrounding lists added. You do not have
+to insert |$| to switch to math mode for |fitchproof|---by default.
+However, it only works if you generate proofs using the |tabular|
+environment, e.g., by loading |fitch| with the |arrayenv=tabular|
+option.
 
 \DescribeMacro{\hypo}\DescribeMacro{\have}
 The commands |\hypo| and |\have| are used
@@ -287,10 +295,11 @@ environment is provided to continue a previously interrupted
 derivation. 
 \NewIn{1.0} The environment |fitchproof*| works the same way, except typesets the
 proof just like the |fitchproof| environment (no need for math mode,
-flush left, spacing before and after). Here is an example:
+flush left, spacing before and after). However, like |fitchproof|, it
+requires the |arrayenv=tabular| option. Here is an example:
 
 \begin{LTXexample}
-\begin{fitchproof}
+\begin{fitchproof}[arrayenv=tabular]
   \hypo {1}  {P\vee Q}
   \hypo {2}  {\neg Q}
   \open
@@ -303,13 +312,24 @@ flush left, spacing before and after). Here is an example:
 \end{fitchproof}
 Derivations can be interrupted and 
 resumed at any point.
-\begin{fitchproof*}
+\begin{fitchproof*}[arrayenv=tabular]
   \have {7} {\bot}  \ne{aa,6}
   \have {8} {P}     \be{7}
   \close
   \have {9} {P}     \oe{1,3-4,aa-8}
 \end{fitchproof*}
 \end{LTXexample}
+
+\NewIn{1.0} You can also have derivations break across pages
+automatically. In order to do this, you have to load the
+\href{https://ctan.org/pkg/longtable}{|longtable|} package, and load
+|fitch| with the |arrayenv=longtable| option. Since the |longtable|
+environment works in text (not math) mode, you should then only use
+|fitchproof|, or the |nd| environment but \emph{not} in text mode.
+Note that the |longtable| package does not work in 2-column mode or
+inside a |multicolumn| environment. You can always produce a proof
+inside a |multicolumn| environment by passing |arrayenv=tabular| as an
+option to the |nd| or |fitchproof| environment.
 
 
 \subsection{Custom line numbers}\label{subsec-customline}
@@ -434,13 +454,13 @@ dimensions are:
 
 \NewIn{1.0} To change these default dimensions, pass a list of
 key-value pairs as package options, as optional arguments to the
-\cmd{\nd} or \cmd{\fitchproof} environment, or use the |\fitchset|
+|nd| or |fitchproof| environment, or use the |\setkeys|
 command:
 \begin{verbatim}
   \usepackage[justsep=1em]{fitch}
   \begin{nd}[rules=myrules]
   \begin{fitchproof}[linethickness=1pt]
-  \fitchset{hsep=1em,indent=1em}\end{verbatim}
+  \setkeys{fitch}{hsep=1em,indent=1em}\end{verbatim}
 
 In addition, the macros used to generate the table containing the
 proof, to format justifications, format line number references, and to
@@ -458,12 +478,15 @@ customized:
 For compatibility with earlier versions of |fitch.sty|, the default
 for \meta{arrayenv} is |array|, i.e., the table containing the proof
 is generated using an |array| environment, and must therefore occur
-inside math mode. The |fitchproof| and |fitchproof*| environments use
-|tabular| instead, and hence should \emph{not} be in math mode. Any
-other table environment that takes the same table format argument as
-|array| and |tabular| can be used here, e.g., the |longtable|
-environment from the |longtable| package (which must be loaded
-separately).
+inside math mode. The |fitchproof| and |fitchproof*| environments
+assume that you use a text table command instead, such as |tabular|.
+Hence, you should \emph{not} use |fitchproof| in math mode, and you
+must use the option |arrayenv=tabular| (when loading |fitch|, as an
+optional argument to |fitchproof|, or using
+|\setkeys{fitch}{arrayenv=tabular}|. Any other table environment that
+takes the same table format argument as |array| and |tabular| can be
+used here, e.g., the |longtable| environment from the |longtable|
+package (which must be loaded separately).
 
 The package defines the macros
 \DescribeMacro{\ndrules}\cmd{\ndrules}, which defines the rule
@@ -549,7 +572,7 @@ $
 $
 \end{LTXexample}
 
-\section{Obsolete commands and backwards compatibility}
+\section{Obsolete commands and backwards compatibility}\label{compat}
 
 \DescribeMacro{\nddim}
 The dimensions can also be changed with the
@@ -568,7 +591,8 @@ you should use the |cindent| option instead.
 
 The original code ``hid'' the internal macros by naming
 them |\nd*...|. In v1.0 this has been changed to the standard
-|\nd@...|.
+|\nd@...|. Any low-level redefinition of |fitch| internals that uses
+|*| will break in v1.0.
 
 \section{Other comments}
 
@@ -584,8 +608,8 @@ printed page.
 
 \section{Copyright and license}
 
-This document and the accompanying |fitch.sty| macros
-are {\copyright} 2002--2023 by Peter Selinger and distributed under
+This document and the accompanying |fitch.sty| macros are {\copyright}
+2002--2023 by Peter Selinger and Richard Zach and distributed under
 the terms of the \href{https://www.latex-project.org/lppl/}{LPPL}.
 
 \end{document}
