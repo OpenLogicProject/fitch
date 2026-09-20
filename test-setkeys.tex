@@ -1,0 +1,41 @@
+\documentclass{article}
+\usepackage[showframe]{geometry}
+\usepackage{fitch}
+\usepackage{amsmath}
+\NewDocumentEnvironment{myarray}{}{%
+  \paragraph{Proof:}\par
+  \[\begin{array}}{\end{array}\]}
+\begin{document}
+\setkeys{fitch}{arrayenv=myarray}
+\begin{nd}
+  \hypo {1} {\forall y \neg P(y)}
+  \open          
+  \hypo {2} {\exists x P(x)}
+  \open[u]       
+  \hypo {3} {P(u)}
+  \have {4}{\forall y \neg P(y)}  \r{1}
+  \have {5} {\neg P(u)}           \Ae{4}
+  \have {6} {\bot}                \ne{3,5}
+  \close
+  \have {6a} {\bot}                 \Ee{2,3-6}
+  \close
+  \have {7} {\neg \exists x P(x)}     \ni{2-6a}
+\end{nd}
+\newgeometry{hscale=0.5}
+\setkeys{fitch}{arrayenv=tabular}
+\begin{nd}
+  \hypo {1} {\forall y \neg P(y)}
+  \open          
+  \hypo {2} {\exists x P(x)}
+  \open[u]       
+  \hypo {3} {P(u)}
+  \have {4}{\forall y \neg P(y)}  \r{1}
+  \have {5} {\neg P(u)}           \Ae{4}
+  \have {6} {\bot}                \ne{3,5}
+  \close
+  \have {6a} {\bot}                 \Ee{2,3-6}
+  \close
+  \have {7} {\neg \exists x P(x)}     \ni{2-6a}
+\end{nd}
+
+\end{document}

@@ -52,34 +52,59 @@
 \ProvidesPackage{fitch}[2026-09-12 v1.1 Macros for Fitch-style natural deduction]
 
 % Define keyval options
-
-\RequirePackage{kvoptions}
-
-\SetupKeyvalOptions{
-family = fitch,
-prefix = nd@ % prefix with nd@ for compatibility with old code
+\newif\ifnd@outerline
+\DeclareKeys [fitch] {%
+  rules.store		          = \nd@rules,
+  rules.default:n		      = ndrules,
+  rules.initial:n		      = ndrules,
+  arrayenv.store		      = \nd@arrayenv,
+  arrayenv.initial:n		  = NONE,
+  proofenv.store		      = \nd@proofenv,
+  proofenv.default:n		  = flushleft,
+  proofenv.initial:n		  = flushleft,
+  proofenv.groups:n       = outer,
+  justformat.store		    = \nd@justformat,
+  justformat.default:n		= ndjustformat,
+  justformat.initial:n		= ndjustformat,
+  refformat.store		      = \nd@refformat,
+  refformat.default:n		  = ndrefformat,
+  refformat.initial:n		  = ndrefformat,
+  height.dim_set:N		    = \nd@height,
+  height.default:n		    = 4.5ex,
+  height.initial:n		    = 4.5ex,
+  topheight.dim_set:N		  = \nd@topheight,
+  topheight.default:n		  = 3.5ex,
+  topheight.initial:n		  = 3.5ex,
+  depth.dim_set:N		      = \nd@depth,
+  depth.default:n		      = 1.5ex,
+  depth.initial:n		      = 1.5ex,
+  labelsep.dim_set:N		  = \nd@labelsep,
+  labelsep.default:n		  = 1em,
+  labelsep.initial:n		  = 1em,
+  indent.dim_set:N		    = \nd@indent,
+  indent.default:n		    = 1.6em,
+  indent.initial:n		    = 1.6em,
+  hsep.dim_set:N		      = \nd@hsep,
+  hsep.default:n		      = 1.5ex,
+  hsep.initial:n		      = 1.5ex,
+  justsep.dim_set:N		    = \nd@justsep,
+  justsep.default:n		    = 2.5em,
+  justsep.initial:n		    = 2.5em,
+  linethickness.dim_set:N	= \nd@linethickness,
+  linethickness.default:n	= .2mm,
+  linethickness.initial:n	= .2mm,
+  cindent.dim_set:N		    = \nd@cindent,
+  cindent.default:n		    = 1em,
+  cindent.initial:n		    = 1em,
+  outerline.if            = nd@outerline,
+  outerline.default:n     = true,
+  outerline.initial:n     = true,
 }
 
-\DeclareStringOption[ndrules]{rules}
-\DeclareStringOption[array]{arrayenv}
-\DeclareStringOption[flushleft]{proofenv}
-\DeclareStringOption[ndjustformat]{justformat}
-\DeclareStringOption[ndrefformat]{refformat}
-
-\DeclareStringOption[4.5ex]{height}[4.5ex]
-\DeclareStringOption[3.5ex]{topheight}[3.5ex]
-\DeclareStringOption[1.5ex]{depth}[1.5ex]
-\DeclareStringOption[1em]{labelsep}[1em]
-\DeclareStringOption[1.6em]{indent}[1.6em]
-\DeclareStringOption[1.5ex]{hsep}[1.5ex]
-\DeclareStringOption[2.5em]{justsep}[2.5em]
-\DeclareStringOption[.2mm]{linethickness}[.2mm]
-\DeclareStringOption[1em]{cindent}[1em]
-\DeclareBoolOption[true]{outerline}
 
 % user command to redefine dimensions
-\def\nddim#1#2#3#4#5#6#7#8{
-  \setkeys{fitch}{
+\def\nddim#1#2#3#4#5#6#7#8{%
+  \fitchset{%
     height=#1,
     topheight=#2,
     depth=#3,
@@ -88,28 +113,15 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
     hsep=#6,
     justsep=#7,
     linethickness=#8
-  }
+  }%
 }
 
-\DeclareLocalOptions{
-  rules,
-  arrayenv,
-  proofenv,
-  justformat,
-  refformat,
-  height,
-  topheight,
-  depth,
-  labelsep,
-  indent,
-  hsep,
-  justsep,
-  linethickness,
-  cindent,
-  outerline
-}
+\ProcessKeyOptions[fitch]
 
-\ProcessLocalKeyvalOptions{fitch}
+% Perhaps more user friendly?
+\NewDocumentCommand\fitchset{m}{%
+  \SetKeys[fitch]{#1}%
+}
 
 % Actual fitch.sty code
 
@@ -314,19 +326,45 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 
 % User-level commands for proofs
 
-\newcommand{\nd@mathwarn}{\ifmmode\PackageWarning{fitch}{%
-  You are using fitch proofs in math mode.  This is not recommended and may cause errors. See the manual.}\fi}
+\newcommand{\nd@mathwarn}{\ifmmode\PackageWarning{fitch}{You are using fitch proofs in math mode.  This is not recommended and may cause errors. See the manual.}\fi}
+\newcommand{\nd@checkenv}{%
+  \edef\nd@tempa{NONE}\edef\nd@tempb{\nd@arrayenv}%
+  \ifmmode
+    \ifx\nd@tempa\nd@tempb
+      \def\nd@arrayenv{array}%
+    \fi
+  \else
+    \ifx\nd@tempa\nd@tempb
+      \def\nd@arrayenv{tabular}%
+    \fi
+  \fi
+}
 
+\NewDocumentCommand\fitchset@outer{}{%
+  % This avoids setting all the keys twice
+  % This one sets only the proofenv key
+  \UseName{keys_set_groups:nnn}{fitch}{outer}%
+}
+\NewDocumentCommand\fitchset@inner{}{%
+  % This sets everything but the proofenv key
+  \UseName{keys_set_exclude_groups:nnn}{fitch}{outer}%
+}
+
+% For nd, ndresume, we use the @inner version
+% An environment always makes a group
+% Consider defining these protected e.g. with \NewDocumentEnvironment
 \newenvironment{nd}[1][]
-  {\nd@mathwarn\begingroup
-  \setkeys{fitch}{#1}%
+  {\nd@mathwarn
+  \fitchset@inner{#1}%
+  \nd@checkenv
   \nd@init\nd@beginc\ignorespaces}
-  {\nd@endc\endgroup}
+  {\nd@endc}
 \newenvironment{ndresume}[1][]
-  {\nd@mathwarn\begingroup
-  \setkeys{fitch}{#1}%
+  {\nd@mathwarn
+  \fitchset@inner{#1}%
+  \nd@checkenv
   \nd@init\nd@resumec\ignorespaces}
-  {\nd@endc\endgroup}
+  {\nd@endc}
 % \newenvironment{fitchproof}[1][]
 %   {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{nd}[#1]}
 %   {\end{nd}\end{list}}
@@ -334,12 +372,49 @@ prefix = nd@ % prefix with nd@ for compatibility with old code
 %   {\begin{list}{}{\setlength{\leftmargin}{0pt}}\item\begin{ndresume}[#1]}
 %   {\end{ndresume}\end{list}}
 
+% For fitchproof, fitchproof*, we set @outer
+% Again, shouldn't these be defined protected?
 % Better code to avoid a list in tagged PDF
 \newenvironment{fitchproof}[1][]
-  {\begingroup\setkeys{fitch}{#1}\begin{\nd@proofenv}\begin{nd}[#1]}
-  {\end{nd}\end{\nd@proofenv}\endgroup}
+{\fitchset@outer{#1}\begin{\nd@proofenv}\begin{nd}[#1]}
+  {\end{nd}\end{\nd@proofenv}}
 \newenvironment{fitchproof*}[1][]
-  {\begingroup\setkeys{fitch}{#1}\begin{\nd@proofenv}\begin{ndresume}[#1]}
-  {\end{ndresume}\end{\nd@proofenv}\endgroup}
+  {\fitchsetouter{#1}\begin{\nd@proofenv}\begin{ndresume}[#1]}
+  {\end{ndresume}\end{\nd@proofenv}}
+
+% Compatibility patch for legacy \setkeys usage
+% This redefines \setkeys, which is not great.
+% However, it does at least do it whole-heartedly i.e. it saves and wraps the
+%   original definition rather than trying to patch it, which seems a little
+%   safer. 
+\newcommand\fitch@fix@setkeys{%
+  \let\fitch@saved@setkeys\setkeys
+  \long\def\setkeys##1##2{%
+    \edef\fitch@tempa{fitch}\edef\fitch@tempb{##1}%
+    \ifx\fitch@tempa\fitch@tempb
+      \fitch@warn@setkeys
+      \SetKeys[fitch]{##2}%
+    \else
+      \fitch@saved@setkeys{##1}{##2}%
+    \fi
+  }%
+}
+\newcommand\fitch@warn@setkeys{%
+  \PackageWarning{fitch}{%
+    \noexpand\setkeys is deprecated.
+    Please use \noexpand\fitchset instead%
+  }%
+}
+\AddToHook{pkg/keyval/after}[.]{%
+  \fitch@fix@setkeys
+}
+\IfPackageLoadedTF{keyval}{%
+  \fitch@fix@setkeys
+}{%
+  \newcommand\setkeys[2]{%
+    \fitch@warn@setkeys
+    \SetKeys[#1]{#2}%
+  }%
+}
 % End of file fitch.sty
 
